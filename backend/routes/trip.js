@@ -11,7 +11,7 @@ router.post('/create', async (req, res) => {
 
     // Step 1: Fetch places matching destination + interests
     const places = await Place.find({
-      city: { $regex: String(trip.destination), $options: 'i' },
+      city: { $regex: String(destination), $options: 'i' },
       category: { $in: interests }
     })
 
