@@ -53,6 +53,14 @@ function Landing() {
       >
         Plan My Trip ✈️
       </button>
+
+      <p style={{
+        marginTop: '24px',
+        color: '#666',
+        fontSize: '0.85rem'
+      }}>
+        Available cities: Goa · Mumbai · Delhi · Bangalore · Northeast India
+      </p>
     </div>
   )
 }

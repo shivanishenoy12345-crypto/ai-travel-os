@@ -5,12 +5,14 @@ import mongoose from 'mongoose'
 import tripRoutes from './routes/trip.js'
 import itineraryRoutes from './routes/itinerary.js'
 import chatRoutes from './routes/chat.js'
+import weatherRoutes from './routes/weather.js'
 
 dotenv.config()
 console.log('OpenAI Key loaded:', process.env.OPENAI_API_KEY ? 'YES ✅' : 'NO ❌')
 const app = express()
 app.use(cors())
 app.use(express.json())
+app.use('/weather', weatherRoutes)
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected ✅'))

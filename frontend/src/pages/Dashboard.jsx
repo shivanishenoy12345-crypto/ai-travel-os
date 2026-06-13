@@ -6,6 +6,7 @@ function Dashboard() {
   const { tripId } = useParams()
   const [trip, setTrip] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [weather, setWeather] = useState(null)
 
   useEffect(() => {
     const fetchTrip = async () => {
@@ -34,7 +35,15 @@ function Dashboard() {
       Loading your trip... ✈️
     </div>
   )
-
+const checkWeather = async () => {
+  try {
+    const res = await axios.get(`http://localhost:5000/weather/${tripId}`)
+    setWeather(res.data.weather)
+    setTrip(res.data.trip)
+  } catch (err) {
+    console.error(err)
+  }
+}
   return (
     <div style={{
       minHeight: '100vh',
@@ -57,6 +66,46 @@ function Dashboard() {
           <p style={{ color: '#aaa', marginTop: '8px' }}>
             {trip.numberOfDays} days · {trip.budget} · {trip.interests.join(', ')}
           </p>
+          {weather && (
+  <div style={{
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '12px',
+    padding: '12px 20px',
+    borderRadius: '50px',
+    background: weather.isRainy ? 'rgba(255,100,100,0.15)' : 'rgba(0,210,255,0.15)',
+    border: `1px solid ${weather.isRainy ? 'rgba(255,100,100,0.3)' : 'rgba(0,210,255,0.3)'}`,
+    marginTop: '16px',
+    marginBottom: '8px'
+  }}>
+    <span style={{ fontSize: '1.5rem' }}>{weather.isRainy ? '🌧️' : '☀️'}</span>
+    <span style={{ color: weather.isRainy ? '#ff8a80' : '#00d2ff', fontWeight: '600' }}>
+      {weather.condition} · {Math.round(weather.temperature)}°C
+    </span>
+    {weather.isRainy && (
+      <span style={{ color: '#ff8a80', fontSize: '0.85rem' }}>
+        Itinerary updated for rain!
+      </span>
+    )}
+  </div>
+)}
+
+<button
+  onClick={checkWeather}
+  style={{
+    display: 'block',
+    marginTop: '12px',
+    padding: '10px 24px',
+    borderRadius: '50px',
+    border: '1px solid rgba(255,255,255,0.15)',
+    background: 'rgba(255,255,255,0.05)',
+    color: 'white',
+    cursor: 'pointer',
+    fontSize: '0.9rem'
+  }}
+>
+  Check Weather & Update Plan 🌤️
+</button>
         </div>
 
         {/* Itinerary */}

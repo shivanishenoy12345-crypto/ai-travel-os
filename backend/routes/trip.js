@@ -14,47 +14,36 @@ router.post('/create', async (req, res) => {
       city: { $regex: String(destination), $options: 'i' },
       category: { $in: interests }
     })
-
+console.log('Places found:', places.length)
     if (places.length === 0) {
       return res.status(404).json({ message: 'No places found for this destination' })
     }
 
-    // Step 2: Sort by rating
-    const sorted = places.sort((a, b) => b.rating - a.rating)
+  // Step 2: Sort by rating
+const sorted = places.sort((a, b) => b.rating - a.rating)
 
-    // Step 3: Build itinerary day by day
-    const itinerary = []
-    const placesPerDay = 3
-    let placeIndex = 0
+// Step 3: Build itinerary — no repeats using slice
+const itinerary = []
+const placesPerDay = 3
+let allPlaces = [...sorted] // copy array
 
-    for (let day = 1; day <= numberOfDays; day++) {
-      const dayPlaces = []
-      const times = ['09:00', '12:00', '15:00']
+for (let day = 1; day <= numberOfDays; day++) {
+  const times = ['09:00', '12:00', '15:00']
+  const daySlice = allPlaces.splice(0, placesPerDay) // take first 3 and remove them
 
-      for (let slot = 0; slot < placesPerDay; slot++) {
-        if (placeIndex >= sorted.length) placeIndex = 0 // loop if not enough places
+  const dayPlaces = daySlice.map((place, slot) => ({
+    place: place._id,
+    startTime: times[slot],
+    endTime: times[slot + 1] || '18:00',
+    notes: ''
+  }))
 
-        const place = sorted[placeIndex]
-        const startTime = times[slot]
-        const endTime = times[slot + 1] || '18:00'
-
-        dayPlaces.push({
-          place: place._id,
-          startTime,
-          endTime,
-          notes: ''
-        })
-
-        placeIndex++
-      }
-
-      itinerary.push({
-        day,
-        date: new Date(Date.now() + (day - 1) * 24 * 60 * 60 * 1000),
-        places: dayPlaces
-      })
-    }
-
+  itinerary.push({
+    day,
+    date: new Date(Date.now() + (day - 1) * 24 * 60 * 60 * 1000),
+    places: dayPlaces
+  })
+}
     // Step 4: Save trip to DB
     const trip = await Trip.create({
       user: userId,
